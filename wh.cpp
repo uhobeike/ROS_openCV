@@ -29,24 +29,21 @@ int main(int argc, char* argv[])
     ros::init(argc, argv, "talker");
     ros::NodeHandle n;
 
-    ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter",1000);
-       
+    ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter",1000000);
+    ros::Rate loop_rate(1000);    
     cv::VideoCapture cap(0);//デバイスのオープン
     //cap.open(0);//こっちでも良い．
-    std::ofstream opfile;//fileopen
     if(!cap.isOpened())//カメラデバイスが正常にオープンしたか確認．
     {
         //読み込みに失敗したときの処理
         return -1;
     }
-
-    while(cap.read(frame))//無限ループ
+    
+    while(ros::ok())//無限ループ
     {
-        std_msgs::String msg;
-	std::stringstream ss;
-	ss << "uhogori" << 0;
-	msg.data = ss.str();
-	chatter_pub.publish(msg);
+    	std::stringstream ss;
+        cap.read(frame);
+	std_msgs::String msg;
         cv::Mat cut_img(frame,cv::Rect(170,0,470,1));               
         cv::cvtColor(cut_img, gray_img, CV_BGR2GRAY); //グレースケールに変換
         cv::threshold(gray_img,bin_img,160,255,THRESH_BINARY); //閾値160で2値画像に変換
@@ -54,7 +51,7 @@ int main(int argc, char* argv[])
         //取得したフレーム画像に対して，クレースケール変換や2値化などの処理を書き込む．
 	//
 
-        cv::imshow("win", bin_img);//画像を表示．
+        //cv::imshow("win", bin_img);//画像を表示．
 //	int wh = frame.rows;
 //        int ht = frame.cols;
 
@@ -65,38 +62,26 @@ int main(int argc, char* argv[])
 
 	
 
-	for(int y = 0; y < bin_img.rows; y++)
-	{
-    		for(int x = 0; x < bin_img.cols; x++)
-    		{
-        		px = static_cast<int>(bin_img.at<unsigned char>(y, x));
-			if(px == 255){
-				px = 1;
-    			}
-			std::cout<< px;	
-			str[x]=px;
-		}
-		std::cout<<std::endl;
-		for(int i=198;i<271;i++){
-			px_cnt += str[i];
-		}
-                
-    		opfile.open("op.txt",std::ios::trunc);    
-		std::cout<<px_cnt<<std::endl;
-		opfile << px_cnt;		
-		opfile.close();
+    	for(int x = 0; x < bin_img.cols; x++)
+    	{
+        	px = static_cast<int>(bin_img.at<unsigned char>(0, x));
+		if(px == 255){
+			px = 1;
+    		}
+		//std::cout<< px;	
+		str[x]=px;
 	}
-
-        const int key = cv::waitKey(1);
-        if(key == 'q'/*113*/)//qボタンが押されたとき
-        {
-            break;//whileループから抜ける．
-        }
-        else if(key == 's'/*115*/)//sが押されたとき
-        {
-            //フレーム画像を保存する．
-            cv::imwrite("img.png", frame);
-        }
+	//std::cout<<std::endl;
+	for(int i=198;i<271;i++){
+		px_cnt += str[i];
+	}
+                
+	std::cout<<px_cnt<<std::endl;
+	ss << px_cnt;
+	msg.data = ss.str();
+	chatter_pub.publish(msg);
+	ros::spinOnce();
+	loop_rate.sleep();
     }
     cv::destroyAllWindows();
     return 0;
