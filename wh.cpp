@@ -23,7 +23,7 @@ cv::Mat dst;
 
 int px = 0;
 int str[469];
-int px_cnt;
+int sensval;
 int main(int argc, char* argv[])
 {   
     ros::init(argc, argv, "talker");
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
         //取得したフレーム画像に対して，クレースケール変換や2値化などの処理を書き込む．
 	//
 
-        //cv::imshow("win", bin_img);//画像を表示．
+        cv::imshow("win", bin_img);//画像を表示．
 //	int wh = frame.rows;
 //        int ht = frame.cols;
 
@@ -61,6 +61,8 @@ int main(int argc, char* argv[])
 	//std::cout << bin_img.cols << " " << bin_img.rows << std::endl;
 
 	
+	int px_cnt_L = 0;
+	int px_cnt_R = 0;
 
     	for(int x = 0; x < bin_img.cols; x++)
     	{
@@ -72,12 +74,15 @@ int main(int argc, char* argv[])
 		str[x]=px;
 	}
 	//std::cout<<std::endl;
-	for(int i=198;i<271;i++){
-		px_cnt += str[i];
+	for(int i=100;i<210;i++){
+		px_cnt_L += str[i];
 	}
-                
-	std::cout<<px_cnt<<std::endl;
-	ss << px_cnt;
+	for(int i=257;i<361;i++){
+		px_cnt_R += str[i];
+	}
+        sensval = px_cnt_L - px_cnt_R;        
+	std::cout<< sensval <<std::endl;
+	ss << sensval;
 	msg.data = ss.str();
 	chatter_pub.publish(msg);
 	ros::spinOnce();
@@ -86,4 +91,3 @@ int main(int argc, char* argv[])
     cv::destroyAllWindows();
     return 0;
 }
-
