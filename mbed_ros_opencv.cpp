@@ -17,22 +17,21 @@ DigitalOut PHB(D7);
 PwmOut PWM_A(D5);
 PwmOut PWM_B(D4);
 //グローバル宣言
-int sensval;
+int sensval_msg;
 int MotorL=0,MotorR=0;                  //モータPWMデューティ比
 int CommSpeedR=0,CommSpeedL=0;
 int ErrFlg=0;                           //エラー判定フラグ
 int before_sensval;
 int goal_sens_val = 74;
 double cp,cd,cv;
-double kp =0.5,kd =0,dt=0.001;
+double kp =0.15,kd =0.001,dt=0.001;
 //割り込み定義
 Ticker flipper;             //汎用タイマー
 
 void messageCb(const std_msgs::String& msg){
-     sensval= atoi(msg.data);
+     sensval_msg = atoi(msg.data);
      lcd.cls();
-     lcd.home();
-     lcd.printf("%d",sensval);
+     lcd.printf("%d",sensval_msg);
 }
 
 ros::Subscriber<std_msgs::String> sub("chatter", &messageCb);
@@ -54,38 +53,35 @@ void init(){
 }
 void MotorCtrl(void){
     
-    if(ErrFlg){                          //異常判定
-        PWM_A.pulsewidth_us(0);         //左PWM出力0
-        PWM_B.pulsewidth_us(0);         //右PWM出力0
-                    }
-    else{                               //通常時
+                                  //通常時
         if(MotorL >= 1000) MotorL = 1000;
         if(MotorR >= 1000) MotorR = 1000;
             PWM_A.pulsewidth_us(MotorL);    //左PWM  (0~1000)
             PWM_B.pulsewidth_us(MotorR);    //右PWM  (0~1000)
-    }
+    
         
 
-                    }    
+}    
 //------------ライントレース--------------------
 void LineTrace(void){
+    int sensval = 0;
+    sensval = sensval_msg;
+    
+    CommSpeedR = 10;
+    CommSpeedL = 15;
     
     
-    CommSpeedR = 13;
-    CommSpeedL = 13;
-    
-    sensval = goal_sens_val - sensval;
     cp=kp*sensval;
     cd=kd*((before_sensval-sensval)/dt);
     
     cv=cp-cd;
     
     MotorR = int(CommSpeedR - cv);//L
-    MotorL = int(CommSpeedL - cv);//R
+    MotorL = int(CommSpeedL + cv);//R
     
     before_sensval=sensval;
     
-    //MotorR =13;
+    //MotorR = 13;
     //MotorL = 13;
 }
 void flip(){
