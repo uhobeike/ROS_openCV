@@ -16,10 +16,10 @@ using namespace::cv;
 
 
 
-cv::Mat gray_img; //グレースケール画像を入れておくためのMat
-cv::Mat bin_img; //2値画像を入れておくためのMat
-cv::Mat frame; //取得したフレーム
-cv::Mat dst;
+Mat gray_img; //グレースケール画像を入れておくためのMat
+Mat bin_img; //2値画像を入れておくためのMat
+Mat frame; //取得したフレーム
+Mat dst;
 
 int px = 0;
 int str[469];
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
     ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter",1000000);
     ros::Rate loop_rate(1000);    
-    cv::VideoCapture cap(0);//デバイスのオープン
+    VideoCapture cap(0);//デバイスのオープン
     //cap.open(0);//こっちでも良い．
     if(!cap.isOpened())//カメラデバイスが正常にオープンしたか確認．
     {
@@ -44,14 +44,14 @@ int main(int argc, char* argv[])
     	std::stringstream ss;
         cap.read(frame);
 	std_msgs::String msg;
-        cv::Mat cut_img(frame,cv::Rect(170,0,470,1));               
-        cv::cvtColor(cut_img, gray_img, CV_BGR2GRAY); //グレースケールに変換
-        cv::threshold(gray_img,bin_img,160,255,THRESH_BINARY); //閾値160で2値画像に変換
-        cv::threshold(gray_img, bin_img, 0, 255, THRESH_BINARY | THRESH_OTSU); //閾値を自動で設定
+        Mat cut_img(frame,cv::Rect(170,0,470,1));               
+        cvtColor(cut_img, gray_img, CV_BGR2GRAY); //グレースケールに変換
+        threshold(gray_img,bin_img,160,255,THRESH_BINARY); //閾値160で2値画像に変換
+        threshold(gray_img, bin_img, 0, 255, THRESH_BINARY | THRESH_OTSU); //閾値を自動で設定
         //取得したフレーム画像に対して，クレースケール変換や2値化などの処理を書き込む．
 	//
 
-        cv::imshow("win", bin_img);//画像を表示．
+        imshow("win", bin_img);//画像を表示．
 //	int wh = frame.rows;
 //        int ht = frame.cols;
 
@@ -88,6 +88,6 @@ int main(int argc, char* argv[])
 	ros::spinOnce();
 	loop_rate.sleep();
     }
-    cv::destroyAllWindows();
+    destroyAllWindows();
     return 0;
 }
