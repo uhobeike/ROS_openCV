@@ -45,7 +45,7 @@ double kp =0.10,kd =0.01,dt=0.001;
 Ticker flipper;             //汎用タイマー
 Ticker flipper2;             //汎用タイマー
 
-Serial pc(USBTX, USBRX);
+//Serial pc(USBTX, USBRX);  //これを使っているとrosserial使えないのでコメントアウト
 
 void messageCb(const std_msgs::String& msg){
      sensval_msg = atoi(msg.data);
