@@ -172,7 +172,7 @@ int main(){
     //割り込み処理開始  
     flipper.attach(&flip,0.001);              //汎用タイマー割り込み    
     while(1){
-        /*
+        
         switch(pattern){
             case 1://左レンチェン
                 trace_flag = 1;
@@ -186,7 +186,7 @@ int main(){
             
                 break;
         }
-         */   
+         
         nh.spinOnce();
     
 
