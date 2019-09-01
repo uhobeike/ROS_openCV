@@ -12,9 +12,6 @@
 
 using namespace::cv;
 
-
-
-
 cv::Mat gray_img; //グレースケール画像を入れておくためのMat
 cv::Mat bin_img; //2値画像を入れておくためのMat
 cv::Mat frame; //取得したフレーム
@@ -28,8 +25,7 @@ int main(int argc, char* argv[])
 {   
     ros::init(argc, argv, "talker");
     ros::NodeHandle nh;
-    //ros::NodeHandle n_2;
-
+    
     ros::Publisher chatter_pub_1 = nh.advertise<std_msgs::String>("chatter_1",1000);
     ros::Publisher chatter_pub_2 = nh.advertise<std_msgs::String>("chatter_2",1000);
 
@@ -90,15 +86,15 @@ int main(int argc, char* argv[])
 	for(int i=271;i<361;i++){
 		px_cnt_R += str[i];
 	}
-    sensval_1 = px_cnt_L - px_cnt_R;
+    	sensval_1 = px_cnt_L - px_cnt_R;
 	sensval_2 = px_cnt_LL;	
 	std::cout<< sensval_1 << " " << sensval_2 <<std::endl;
-    ss << sensval_1;
-    msg_1.data = ss.str();	
+    	ss << sensval_1;
+    	msg_1.data = ss.str();	
 	ss_2 << sensval_2;
 	msg_2.data = ss_2.str();
 	chatter_pub_1.publish(msg_1);
-    chatter_pub_2.publish(msg_2);
+    	chatter_pub_2.publish(msg_2);
 	ros::spinOnce();
 	loop_rate.sleep();
     }
