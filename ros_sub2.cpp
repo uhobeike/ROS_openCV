@@ -27,10 +27,11 @@ int sensval_2;
 int main(int argc, char* argv[])
 {   
     ros::init(argc, argv, "talker");
-    ros::NodeHandle n;
+    ros::NodeHandle nh;
+    //ros::NodeHandle n_2;
 
-    ros::Publisher chatter_pub_1 = n.advertise<std_msgs::String>("chatter_1",1000);
-    ros::Publisher chatter_pub_2 = n.advertise<std_msgs::String>("chatter_2",1000);
+    ros::Publisher chatter_pub_1 = nh.advertise<std_msgs::String>("chatter_1",1000);
+    ros::Publisher chatter_pub_2 = nh.advertise<std_msgs::String>("chatter_2",1000);
 
     ros::Rate loop_rate(1000);    
     cv::VideoCapture cap(0);//デバイスのオープン
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
     while(ros::ok())//無限ループ
     {
     	std::stringstream ss;
-        //std::stringstream ss_2;
+        std::stringstream ss_2;
         
         cap.read(frame);
 	    //std_msgs::String msg;
@@ -91,11 +92,11 @@ int main(int argc, char* argv[])
 	}
     sensval_1 = px_cnt_L - px_cnt_R;
 	sensval_2 = px_cnt_LL;	
-	std::cout<< sensval_1 <<std::endl;
+	std::cout<< sensval_1 << " " << sensval_2 <<std::endl;
     ss << sensval_1;
     msg_1.data = ss.str();	
-	ss << sensval_2;
-	msg_2.data = ss.str();
+	ss_2 << sensval_2;
+	msg_2.data = ss_2.str();
 	chatter_pub_1.publish(msg_1);
     chatter_pub_2.publish(msg_2);
 	ros::spinOnce();
