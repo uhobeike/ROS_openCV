@@ -6,7 +6,6 @@
 
 
 ros::NodeHandle nh;
-//ros::NodeHandle nh_2;
 AQM0802A lcd(PB_7, D10);
 DigitalOut REFA(D15);
 DigitalOut REFB(D14);
@@ -19,12 +18,13 @@ PwmOut PWM_B(D4);
 InterruptIn enc_rA(D9);
 InterruptIn enc_rB(D8);
 
-//const double enc_per = 0.0005;
+const double enc_per = 0.0005;
 
 
 //グローバル宣言
-int sensval_msg,sensval_msg_LL,enc_flag,enc_cnt,enc_sum,enc_total,pattern,trace_flag;
+int sensval_msg,sensval_msg_LL,sensval_msg_C,enc_flag,enc_cnt,enc_sum,enc_total,trace_flag;
 int MotorL=0,MotorR=0;                  //モータPWMデューティ比
+int pattern = 0;
 int CommSpeedR=0,CommSpeedL=0;
 int ErrFlg=0;                           //エラー判定フラグ
 int before_sensval;
@@ -38,72 +38,96 @@ Ticker flipper2;             //汎用タイマー
 //Serial pc(USBTX, USBRX);  //これを使っているとrosserial使えないのでコメントアウト
 
 void messageCb_1(const std_msgs::String& msg_1){
-     lcd.setCursor(0,0);
-     int sensvalsum =0;
      sensval_msg = atoi(msg_1.data);
-     /*
-     for(int i;i<10;i++){
-     sensvalsum =+ sensval_msg;
-     }
-     sensval_msg = sensvalsum/10;
-     */
-     
-     lcd.printf("%d,%d",sensval_msg,pattern);
-     lcd.printf("        ");
-     if(sensval_msg >= 40){
-         pattern=10;//左レンチェン
-         trace_flag=1;//トレース解除
-         
-     }
-    
     /* else if(sensval_msg <= -80){
          pattern=2;//右レンチェン
      }
      */
 }
 void messageCb_2(const std_msgs::String& msg_2){
-     lcd.setCursor(0,1); 
-     int sensvalsum =0;
-     sensval_msg_LL = atoi(msg_2.data);
-     /*
-     for(int i;i<10;i++){
-     sensvalsum =+ sensval_msg_LL;
-     }
-     sensval_msg_LL = sensvalsum/10;
-     */
-     lcd.printf("%d",sensval_msg_LL);
-     lcd.printf("        ");
+     sensval_msg_LL = atoi(msg_2.data);     
 }
+void messageCb_3(const std_msgs::String& msg_3){
+     sensval_msg_C = atoi(msg_3.data);
+}
+
+
 ros::Subscriber<std_msgs::String> sub_1("chatter_1", &messageCb_1);
 ros::Subscriber<std_msgs::String> sub_2("chatter_2", &messageCb_2);
+ros::Subscriber<std_msgs::String> sub_3("chatter_3", &messageCb_3);
+
+void LCD_printf(void){
+     lcd.setCursor(0,0);
+     lcd.printf("%d,%d",sensval_msg,pattern);
+     lcd.printf("        ");
+     lcd.setCursor(0,1); 
+     lcd.printf("%d",sensval_msg_LL);
+     lcd.printf("  ");
+     lcd.setCursor(2,1); 
+     lcd.printf("%d",sensval_msg_C);
+     lcd.printf("  ");
+     lcd.setCursor(4,1);
+     lcd.printf("%d",enc_sum);
+     lcd.printf("    ");
+     
+}
+
 void MotorCtrl(void){
  
-                              //通常時
+                              
     if(MotorL >= 1000) MotorL = 1000;
     if(MotorR >= 1000) MotorR = 1000;
         PWM_A.pulsewidth_us(MotorL);    //左PWM  (0~1000)
         PWM_B.pulsewidth_us(MotorR);    //右PWM  (0~1000)
 
-    
-
 }
 void run_pattern(void){
+    
     switch(pattern){
+            case 0:
+                if(sensval_msg >= 40){
+                   pattern=10;//左レンチェン
+                   trace_flag=1;//トレース解除
+                }
+                break;
             case 10://左レンチェン(左白線検知読み飛ばし)
-                MotorR = 15;
+                MotorR = 13;
                 MotorL = 13;
                 
                 if(sensval_msg>=-20 && sensval_msg<=20){//復帰処理
                     trace_flag=0;
-                    
+                    pattern = 11;
                 }
-                if(sensval_msg == 0)
-            case 11://左レンチェン(本番)
-                
-                
                 
                 break;
-            case 2://右レンチェン
+            case 11://左レンチェン(本番)
+               
+                if(sensval_msg_LL == 0){
+                    pattern = 12;
+                    trace_flag=1;
+                    MotorR = 11;
+                    MotorL = 50;
+                }
+                
+                break;
+            case 12:
+                 MotorR = 11.5;
+                 MotorL = 13;
+                 if(sensval_msg_LL >= 10&& sensval_msg_C >= 65 && sensval_msg>=-20 && sensval_msg<=20){
+                      trace_flag=0;
+                      pattern = 13;
+                 }
+                 break;
+             case 13:
+                 MotorR = 11;
+                 MotorL = 13;
+                 /*
+                 if(sensval_msg_LL >= 10&& sensval_msg_C >= 65 && sensval_msg>=-20 && sensval_msg<=20){
+                      trace_flag=0;
+                      pattern = 13;
+                 }*/
+                 break;
+            case 20://右レンチェン
             
                 break;
     }
@@ -131,12 +155,10 @@ void LineTrace(void){
         
         before_sensval=sensval;
         
-        //MotorR = 13;
-        //MotorL = 13;
     }
 }
 
-/*
+
 void encA_flip_rise(){
     enc_flag |= 0x01;   //0000 0001
     
@@ -171,13 +193,12 @@ void enc_process(){ //エンコーダーカウント1msごとにリセット
     enc_cnt = 0;
     
 }
-*/
+
 void flip(){
-    
     MotorCtrl();
     LineTrace();
     run_pattern();
-  //  enc_process();
+    enc_process();
 }
 void init(){
     enc_rA.mode(PullUp);
@@ -198,12 +219,13 @@ void init(){
     //nh_2.initNode();
     nh.subscribe(sub_1);
     nh.subscribe(sub_2);
-    /*
+    nh.subscribe(sub_3);
+    
     enc_rA.rise(&encA_flip_rise);  //エンコーダーA相立ち上がり割り込み
     enc_rA.fall(&encA_flip_fall);  //エンコーダーA相立ち下り割り込み
     enc_rB.rise(&encB_flip_rise);  //エンコーダーB相立ち上がり割り込み
     enc_rB.fall(&encB_flip_fall);  //エンコーダーB相立ち下り割り込み  
-    */
+    
     //enc_lA.rise(&encA_flip_rise);  //エンコーダーA相立ち上がり割り込み
     //enc_lA.fall(&encA_flip_fall);  //エンコーダーA相立ち下り割り込み
     //enc_lB.rise(&encB_flip_rise);  //エンコーダーB相立ち上がり割り込み
@@ -215,6 +237,7 @@ int main(){
     flipper.attach(&flip,0.001);              //汎用タイマー割り込み    
     while(1){     
         nh.spinOnce();
+        LCD_printf();
         //nh_2.spinOnce();
 
     }
