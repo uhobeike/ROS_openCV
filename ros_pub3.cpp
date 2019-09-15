@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
     ros::Publisher chatter_pub_4 = nh.advertise<std_msgs::String>("chatter_4",1000);
     ros::Publisher chatter_pub_5 = nh.advertise<std_msgs::String>("chatter_5",1000);
     ros::Publisher chatter_pub_6 = nh.advertise<std_msgs::String>("chatter_6",1000);
+    ros::Publisher chatter_pub_7 = nh.advertise<std_msgs::String>("chatter_7",1000);
 
     ros::Rate loop_rate(1000);    
     cv::VideoCapture cap(0);//デバイスのオープン
@@ -55,6 +56,7 @@ int main(int argc, char* argv[])
         std::stringstream ss_4;
         std::stringstream ss_5;
         std::stringstream ss_6;
+        std::stringstream ss_7;
         
         
 	    //std_msgs::String msg;
@@ -64,7 +66,8 @@ int main(int argc, char* argv[])
         std_msgs::String msg_4;
         std_msgs::String msg_5;
         std_msgs::String msg_6;
-
+        std_msgs::String msg_7;
+        
         cv::Mat cut_img_1(frame,cv::Rect(0,479,640,1));    
         cv::Mat cut_img_2(frame,cv::Rect(0,360,640,1));              
         cv::cvtColor(cut_img_1, gray_img_1, CV_BGR2GRAY); //グレースケールに変換
@@ -84,12 +87,15 @@ int main(int argc, char* argv[])
    
         int px_1 = 0;
         int px_2 = 0;
+
         int sensval_1 = 0;
         int sensval_2 = 0;
         int sensval_3 = 0;
         int sensval_4 = 0;
         int sensval_5 = 0;
         int sensval_6 = 0;
+        int sensval_7 = 0;
+
 	    for(int x = 0; x < 640; x++)
 	    {
         	px_1 = static_cast<int>(bin_img_1.at<unsigned char>(0, x));
@@ -133,7 +139,8 @@ int main(int argc, char* argv[])
         sensval_3 = px_cnt_C;
         sensval_4 = px_cnt_RR; 	
         sensval_5 = px_cnt_R;
-        sensval_6 = px_cnt_RLC;        
+        sensval_6 = px_cnt_RLC;    
+        sensval_7 = px_cnt_L;    
         //std::cout<< sensval_1 << " " << sensval_2 << std::endl;
         ss_1 << sensval_1;
         msg_1.data = ss_1.str();	
@@ -147,6 +154,8 @@ int main(int argc, char* argv[])
 	    msg_5.data = ss_5.str();
         ss_6 << sensval_6;
 	    msg_6.data = ss_6.str();
+        ss_7 << sensval_7;
+	    msg_7.data = ss_7.str();
 
 	    chatter_pub_1.publish(msg_1);
         chatter_pub_2.publish(msg_2);
@@ -154,6 +163,7 @@ int main(int argc, char* argv[])
         chatter_pub_4.publish(msg_4);		
         chatter_pub_5.publish(msg_5);				
         chatter_pub_6.publish(msg_6);
+		chatter_pub_7.publish(msg_7);
 		        
         ros::spinOnce();
 	    loop_rate.sleep();
