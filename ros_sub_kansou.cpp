@@ -131,7 +131,7 @@ void run_pattern(void){
                    trace_flag = 1;
                    MotorR = 14;
                    MotorL = 14;
-                   pattern=90;//左レンチェン
+                   pattern=90;//クランクとレンチェンの判別
                    break;
                    }
                 if(enc_jade == 0&&start_flag==1){
