@@ -48,10 +48,6 @@ void messageCb_1(const std_msgs::String& msg_1){
      end_flag = 0;
      end_cnt = 0;
      sensval_msg = atoi(msg_1.data);
-    /* else if(sensval_msg <= -80){
-         pattern=2;//右レンチェン
-     }
-     */
 }
 void messageCb_2(const std_msgs::String& msg_2){
      sensval_msg_LL = atoi(msg_2.data);     
@@ -131,27 +127,27 @@ void run_pattern(void){
                    trace_flag = 1;
                    MotorR = 14;
                    MotorL = 14;
-                   pattern=90;//クランクとレンチェンの判別
+                   pattern = 90;//クランクとレンチェンの判別
                    break;
                    }
-                if(enc_jade == 0&&start_flag==1){
+                if(enc_jade == 0 && start_flag == 1){
                     sl_cnt++;
                 }
                 else sl_cnt = 0;
-                if(sl_cnt==3000){
-                    pattern=30;
+                if(sl_cnt == 3000){
+                    pattern = 30;
                     enc_total = 0;
                     break;
                 }
                 if(sensval_msg_RLC >= 550){
                     if(crunk_flag == 0){
-                        pattern=40;
+                        pattern = 40;
                         trace_flag = 1;
                         enc_total = 0;
                         break;
                     }
                     else if(crunk_flag == 1){
-                        pattern=50;
+                        pattern = 50;
                         trace_flag = 1;
                         enc_total = 0;
                         break;
@@ -159,12 +155,12 @@ void run_pattern(void){
                 }
                 break;
             case 10://左レンチェン(左白線検知読み飛ばし)
-                trace_flag=1;//トレース解除
+                trace_flag = 1;//トレース解除
                 MotorR = 16;
                 MotorL = 16;
                 
                 if(enc_total >= 0.06){//復帰処理
-                    trace_flag=0;
+                    trace_flag = 0;
                     pattern = 11;
                     enc_total = 0;
                 }
@@ -176,8 +172,8 @@ void run_pattern(void){
                     sl_cnt++;
                 }
                 else sl_cnt = 0;
-                if(sl_cnt==3000){
-                    pattern=30;
+                if(sl_cnt == 3000){
+                    pattern = 30;
                     enc_total = 0;
                 }
                 if(sensval_msg_C == 0){
@@ -234,13 +230,13 @@ void run_pattern(void){
                     sl_cnt++;
                 }
                 else sl_cnt = 0;
-                if(sl_cnt==3000){
-                    pattern=30;
+                if(sl_cnt == 3000){
+                    pattern = 30;
                     enc_total = 0;
                 }
                 if(sensval_msg_C == 0){
                     pattern = 22;
-                    trace_flag=1;
+                    trace_flag = 1;
                     enc_total = 0;
                     MotorR = 0;
                     MotorL = 0;
@@ -262,7 +258,7 @@ void run_pattern(void){
                  MotorL = 16;
                  if(enc_total >= 0.3 && sensval_msg >= 70){
                     pattern = 24;
-                    trace_flag=0;
+                    trace_flag = 0;
                     enc_total = 0;
                  }
                  break;
@@ -371,13 +367,13 @@ void run_pattern(void){
                 if(enc_total >=0.01){
                     if(sensval_msg_RLC >= 550){
                         if(crunk_flag == 0){
-                            pattern=40;
+                            pattern = 40;
                             trace_flag = 1;
                             enc_total = 0;
                             break;
                         }
                         else if(crunk_flag == 1){
-                            pattern=50;
+                            pattern = 50;
                             trace_flag = 1;
                             enc_total = 0;
                             break;
@@ -484,10 +480,8 @@ void init(){
     ENB = 1;
     PHB = 1;//motorR
    
-    //sw.mode(PullUp);
  
     nh.initNode();
-    //nh_2.initNode();
     nh.subscribe(sub_1);
     nh.subscribe(sub_2);
     nh.subscribe(sub_3);
