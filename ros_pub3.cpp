@@ -10,7 +10,7 @@
 //#include <boost/python.hpp> 
 
 
-using namespace::cv;
+//using namespace::cv;
 
 
 cv::Mat gray_img_1; //グレースケール画像を入れておくためのMat
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
         std::stringstream ss_7;
         
         
-	    //std_msgs::String msg;
+	//std_msgs::String msg;
         std_msgs::String msg_1;
         std_msgs::String msg_2;
         std_msgs::String msg_3;
@@ -77,13 +77,13 @@ int main(int argc, char* argv[])
         cv::cvtColor(cut_img_2, gray_img_2, CV_BGR2GRAY); //グレースケールに変換
         cv::threshold(gray_img_2,bin_img_2,170,255,THRESH_BINARY); //閾値160で2値画像に変換
         //cv::threshold(gray_img, bin_img_2, 0, 255, THRESH_BINARY | THRESH_OTSU); //閾値を自動で設定
-	    //cv::imshow("win",bin_img_2);
-	    int px_cnt_L = 0;
-	    int px_cnt_R = 0;
+	//cv::imshow("win",bin_img_2);
+	int px_cnt_L = 0;
+	int px_cnt_R = 0;
         int px_cnt_C = 0;
-	    int px_cnt_LL = 0;
+	int px_cnt_LL = 0;
         int px_cnt_RR = 0;
-	    int px_cnt_RLC = 0;
+	int px_cnt_RLC = 0;
    
         int px_1 = 0;
         int px_2 = 0;
@@ -96,25 +96,19 @@ int main(int argc, char* argv[])
         int sensval_6 = 0;
         int sensval_7 = 0;
 
-	    for(int x = 0; x < 640; x++)
-	    {
-        	px_1 = static_cast<int>(bin_img_1.at<unsigned char>(0, x));
+        for(int x = 0; x < 640; x++){
+            px_1 = static_cast<int>(bin_img_1.at<unsigned char>(0, x));
             px_2 = static_cast<int>(bin_img_2.at<unsigned char>(0, x));    	
             if(px_1 == 255){
         		px_1 = 1;
-        	}
+            }
             if(px_2 == 255){
                 px_2 = 1;
             }
-	        //std::cout<< px;	
-	        str_1[x] = px_1;
+	    //std::cout<< px;	
+	    str_1[x] = px_1;
             str_2[x] = px_2;
-		    /*std::cout << px_2;
-            if(x % 40 == 0){
-                
-                std::cout << std::endl << x << std::endl;
-            }
-            */
+
             if(x>=0 && x<640){//crunk
                 px_cnt_RLC += str_2[x];
             }            
@@ -135,7 +129,7 @@ int main(int argc, char* argv[])
             }
         }
         sensval_1 = px_cnt_L - px_cnt_R;//treace_hensa
-	    sensval_2 = px_cnt_LL;	
+	sensval_2 = px_cnt_LL;	
         sensval_3 = px_cnt_C;
         sensval_4 = px_cnt_RR; 	
         sensval_5 = px_cnt_R;
@@ -144,29 +138,29 @@ int main(int argc, char* argv[])
         //std::cout<< sensval_1 << " " << sensval_2 << std::endl;
         ss_1 << sensval_1;
         msg_1.data = ss_1.str();	
-	    ss_2 << sensval_2;
-	    msg_2.data = ss_2.str();
+	ss_2 << sensval_2;
+	msg_2.data = ss_2.str();
         ss_3 << sensval_3;
-	    msg_3.data = ss_3.str();
+	msg_3.data = ss_3.str();
         ss_4 << sensval_4;
-	    msg_4.data = ss_4.str();
+	msg_4.data = ss_4.str();
         ss_5 << sensval_5;
-	    msg_5.data = ss_5.str();
+	msg_5.data = ss_5.str();
         ss_6 << sensval_6;
-	    msg_6.data = ss_6.str();
+	msg_6.data = ss_6.str();
         ss_7 << sensval_7;
-	    msg_7.data = ss_7.str();
+	msg_7.data = ss_7.str();
 
-	    chatter_pub_1.publish(msg_1);
+	chatter_pub_1.publish(msg_1);
         chatter_pub_2.publish(msg_2);
         chatter_pub_3.publish(msg_3);
         chatter_pub_4.publish(msg_4);		
         chatter_pub_5.publish(msg_5);				
         chatter_pub_6.publish(msg_6);
-		chatter_pub_7.publish(msg_7);
+	chatter_pub_7.publish(msg_7);
 		        
         ros::spinOnce();
-	    loop_rate.sleep();
+	loop_rate.sleep();
     }
     cv::destroyAllWindows();
     return 0;
