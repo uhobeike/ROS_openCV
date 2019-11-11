@@ -71,11 +71,12 @@ void depth_estimater::rgbImageCallback(const sensor_msgs::ImageConstPtr& msg){
         flag = 0;
     }
     cv::imshow("RGB image", output_image);
-    if(count > 20000){
+    if(count > 3000){
         std::string msg = "1";
         pub.publish(msg);
-        
+        msg = "0";
     }
+
     cv::waitKey(10);
 }
 int main(int argc, char **argv){
