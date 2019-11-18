@@ -7,11 +7,13 @@ import geometry_msgs.msg
 import rosnode
 from tf.transformations import quaternion_from_euler
 from std_msgs.msg import String
-bool_c = "0"
+flag_demo = 0
+key = 0
 def callback(msg):
     bool_c = msg.data
     print (bool_c)
     main()
+    rospy.sleep(10000.0)
 def listener():
     rospy.init_node('listener', anonymous=True)
     rospy.Subscriber("bool", String, callback)
@@ -43,7 +45,7 @@ def main():
     gripper.go()
 
     # SRDFに定義されている"home"の姿勢にする
-    arm.set_named_target("home")
+    arm.set_named_target("realsense")
     arm.go()
     gripper.set_joint_value_target([0.7, 0.7])
     gripper.go()
@@ -79,7 +81,7 @@ def main():
     arm.go()  # 実行
 
     # ハンドを閉じる
-    gripper.set_joint_value_target([0.4, 0.4])
+    gripper.set_joint_value_target([0.05, 0.05])
     gripper.go()
 
     # 持ち上げる
@@ -95,6 +97,8 @@ def main():
     arm.set_pose_target(target_pose)  # 目標ポーズ設定
     arm.go()							# 実行
 
+    arm.set_named_target("vertical")
+    arm.go()
     # 移動する
     target_pose = geometry_msgs.msg.Pose()
     target_pose.position.x = 0.2
@@ -139,9 +143,10 @@ def main():
     arm.go()  # 実行
 
     # SRDFに定義されている"home"の姿勢にする
-    arm.set_named_target("home")
+    arm.set_named_target("realsense")
     arm.go()
-
+    global flag_demo
+    flag_demo = 1
     print("done")
 
 
